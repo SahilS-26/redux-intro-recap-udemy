@@ -93,12 +93,14 @@ function AccountOperations() {
           <button onClick={handleRequestLoan}>Request loan</button>
         </div>
 
-        <div>
-          <span>
-            Pay back ${currentLoanAmount} ({currentLoanPurpose})
-          </span>{" "}
-          <button onClick={handlePayLoan}>Pay loan</button>
-        </div>
+        {currentLoanAmount > 0 && (
+          <div>
+            <span>
+              Pay back ${currentLoanAmount} ({currentLoanPurpose})
+            </span>{" "}
+            <button onClick={handlePayLoan}>Pay loan</button>
+          </div>
+        )}
       </div>
     </div>
   );
