@@ -33,17 +33,39 @@ const accountSlice = createSlice({
         state.loanPurpose = action.payload.purpose;
       },
     },
-    payLoan(state, action) {
+    payLoan(state) {
       state.balance -= state.loan;
       state.loan = 0;
       state.loanPurpose = "";
     },
+
+    convertingCurrency(state) {
+      state.isLoading = true;
+    },
   },
 });
 
-console.log(accountSlice);
+export const { withdraw, requestLoan, payLoan } = accountSlice.actions;
 
-export const { deposit, withdraw, requestLoan, payLoan } = accountSlice.actions;
+// - Redux Thunk (Not in a RTK way - createAsyncThunk())
+export function deposit(amount, currency) {
+  const TO_CURRENCY = "USD";
+  if (currency === "USD") return { type: "account/deposit", payload: amount };
+
+  return async function (dispatch, getState) {
+    dispatch({ type: "account/convertingCurrency" });
+    // API call
+    const res = await fetch(
+      `https://api.frankfurter.dev/v1/latest?base=${currency}&symbols=${TO_CURRENCY}`
+    );
+    const data = await res.json();
+
+    const convertedAmount = +(amount * data.rates[TO_CURRENCY]).toFixed(2);
+
+    // return action
+    dispatch({ type: "account/deposit", payload: convertedAmount });
+  };
+}
 
 export default accountSlice.reducer;
 
